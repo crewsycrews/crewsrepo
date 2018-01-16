@@ -1,4 +1,4 @@
-// ssh conf for github via https port
+// ssh conf for github via https port(delete this comment before using)
 host github.com
  HostName ssh.github.com
  IdentityFile ~/.ssh/id_rsa
