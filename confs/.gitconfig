@@ -1,0 +1,8 @@
+[user]
+	email = danre1@bk.ru
+	name = crewsycrews
+	signingkey = 0
+[commit]
+	gpgsign = false
+[push]
+	default = simple

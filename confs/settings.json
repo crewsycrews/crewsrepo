@@ -1,0 +1,12 @@
+// VS Code conf
+{
+    "files.associations": {
+        "*.php": "php"
+    },
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "terminal.integrated.fontFamily": "'Anonymous Pro','Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+    "explorer.confirmDelete": false,
+    "workbench.iconTheme": "vscode-great-icons"
+}
