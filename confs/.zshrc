@@ -94,3 +94,5 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias inst="sudo apt install"
 alias upd="sudo apt update && sudo apt upgrade"
+alias arem="sudo apt autoremove"
+alias ll="ls -alF"
