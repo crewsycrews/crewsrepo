@@ -92,7 +92,11 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+export PATH=$PATH:~/.cargo/bin
 alias inst="sudo apt install"
-alias upd="sudo apt update && sudo apt upgrade"
+alias upd="sudo apt update && sudo apt upgrade -y && arem -y"
 alias arem="sudo apt autoremove"
-alias ll="ls -alF"
+alias rem="sudo apt remove"
+alias ll="exa -abghHlS --group-directories-first"
+alias ta="tail -n 20"
