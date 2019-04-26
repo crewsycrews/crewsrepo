@@ -1,5 +1,5 @@
 #!/bin/sh
-FIRST_LIST_OF_APPS="curl cargo cmake python php redis docker nodejs postgresql zsh"
+LIST_OF_APPS="curl cargo cmake python php redis docker npm nodejs postgresql zsh"
 
 apt update
 sudo apt install -y $LIST_OF_APPS
@@ -8,6 +8,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 wget -O ~/.zshrc https://github.com/crewsycrews/my-dotfiles-and-etc/raw/master/confs/.zshrc
 sudo snap install code --classic
 cargo install exa
+sudo wget -O /usr/share/fonts/AnonymousPro-Regular.ttf https://github.com/crewsycrews/my-dotfiles-and-etc/raw/master/fonts/AnonymousPro-Regular.ttf
+sudo wget -O /usr/share/fonts/SourceCodePro-Regular.ttf https://github.com/crewsycrews/my-dotfiles-and-etc/raw/master/fonts/SourceCodePro-Regular.ttf
 
 # start installing composer
 EXPECTED_SIGNATURE="$(wget -q -O - https://composer.github.io/installer.sig)"
