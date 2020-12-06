@@ -1,4 +1,6 @@
 #!/bin/sh
+
+#run this as NOT-ROOT
 LIST_OF_APPS="curl cargo cmake python php redis docker npm nodejs postgresql zsh"
 
 apt update
