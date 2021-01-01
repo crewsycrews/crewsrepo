@@ -7,7 +7,7 @@
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-ZSH_THEME="classyTouch"
+ZSH_THEME="crewsyJohn"
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
@@ -59,7 +59,7 @@ ZSH_THEME="classyTouch"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  git
+  git laravel5 kubectl jsontools node npm redis-cli sudo yarn alias-tips docker-compose
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -72,11 +72,11 @@ source $ZSH/oh-my-zsh.sh
 # export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='nano'
+else
+  export EDITOR='code'
+fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -93,7 +93,7 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-export PATH=$PATH:~/.cargo/bin
+export PATH=$PATH:~/.cargo/bin:$HOME/.config/composer/vendor/bin
 alias inst="sudo apt install"
 alias upd="sudo apt update && sudo apt upgrade -y && arem -y"
 alias arem="sudo apt autoremove"

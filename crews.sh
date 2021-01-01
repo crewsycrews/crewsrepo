@@ -8,10 +8,11 @@ sudo apt install -y $LIST_OF_APPS
 sudo chsh -s /bin/zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 wget -O ~/.zshrc https://github.com/crewsycrews/my-dotfiles-and-etc/raw/master/confs/.zshrc
-sudo snap install code --classic
+cp -r confs/zsh-themes/ ~/.oh-my-zsh/custom/themes/ 
 cargo install exa
-sudo wget -O /usr/share/fonts/AnonymousPro-Regular.ttf https://github.com/crewsycrews/my-dotfiles-and-etc/raw/master/fonts/AnonymousPro-Regular.ttf
-sudo wget -O /usr/share/fonts/SourceCodePro-Regular.ttf https://github.com/crewsycrews/my-dotfiles-and-etc/raw/master/fonts/SourceCodePro-Regular.ttf
+wget https://github.com/be5invis/Iosevka/releases/download/v4.2.0/ttf-iosevka-4.2.0.zip
+sudo unzip ttf-iosevka-4.2.0.zip -d /usr/share/fonts/iosevka
+rm ttf-iosevka-4.2.0.zip
 
 # start installing composer
 EXPECTED_SIGNATURE="$(wget -q -O - https://composer.github.io/installer.sig)"
