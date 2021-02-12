@@ -1,153 +1,85 @@
-functions rbenv_prompt_info >& /dev/null || rbenv_prompt_info(){}
+# Slightly changed AVIT ZSH Theme
 
-function theme_precmd {
-    local TERMWIDTH
-    (( TERMWIDTH = ${COLUMNS} - 1 ))
+# settings
+typeset +H _current_dir="%{$fg_bold[blue]%}%3~%{$reset_color%} "
+typeset +H _return_status="%{$fg_bold[red]%}%(?..⍉)%{$reset_color%}"
+typeset +H _hist_no="%{$fg[grey]%}%h%{$reset_color%}"
 
+PROMPT='
+$(_user_host)${_current_dir} $(git_prompt_info) $(ruby_prompt_info)
+%{%(!.${fg[red]}.${fg[white]})%}▶%{$reset_color%} '
 
-    ###
-    # Truncate the path if it's too long.
+PROMPT2='%{%(!.${fg[red]}.${fg[white]})%}◀%{$reset_color%} '
 
-    PR_FILLBAR=""
-    PR_PWDLEN=""
+RPROMPT='$(vi_mode_prompt_info)%{$(echotc UP 1)%}$(_git_time_since_commit) $(git_prompt_status) ${_return_status}%{$(echotc DO 1)%}'
 
-    local promptsize=${#${(%):---(%n@%m:%l)---()--}}
-    local rubyprompt=`rvm_prompt_info || rbenv_prompt_info`
-    local rubypromptsize=${#${rubyprompt}}
-    local pwdsize=${#${(%):-%~}}
-
-    if [[ "$promptsize + $rubypromptsize + $pwdsize" -gt $TERMWIDTH ]]; then
-      ((PR_PWDLEN=$TERMWIDTH - $promptsize))
-    else
-      PR_FILLBAR="\${(l.(($TERMWIDTH - ($promptsize + $rubypromptsize + $pwdsize)))..${PR_HBAR}.)}"
-    fi
-
+function _user_host() {
+  local me
+  if [[ -n $SSH_CONNECTION ]]; then
+    me="%n@%m"
+  elif [[ $LOGNAME != $USER ]]; then
+    me="%n"
+  fi
+  if [[ -n $me ]]; then
+    echo "%{$fg[cyan]%}$me%{$reset_color%}:"
+  fi
 }
 
+# Determine the time since last commit. If branch is clean,
+# use a neutral color, otherwise colors will vary according to time.
+function _git_time_since_commit() {
+  local last_commit now seconds_since_last_commit
+  local minutes hours days years commit_age
+  # Only proceed if there is actually a commit.
+  if last_commit=$(git log --pretty=format:'%at' -1 2> /dev/null); then
+    now=$(date +%s)
+    seconds_since_last_commit=$((now-last_commit))
 
-setopt extended_glob
-theme_preexec () {
-    if [[ "$TERM" == "screen" ]]; then
-	local CMD=${1[(wr)^(*=*|sudo|-*)]}
-	echo -n "\ek$CMD\e\\"
-    fi
-}
+    # Totals
+    minutes=$((seconds_since_last_commit / 60))
+    hours=$((minutes / 60))
+    days=$((hours / 24))
+    years=$((days / 365))
 
-
-setprompt () {
-    ###
-    # Need this so the prompt will work.
-
-    setopt prompt_subst
-
-
-    ###
-    # See if we can use colors.
-
-    autoload zsh/terminfo
-    for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE GREY; do
-	eval PR_$color='%{$terminfo[bold]$fg[${(L)color}]%}'
-	eval PR_LIGHT_$color='%{$fg[${(L)color}]%}'
-	(( count = $count + 1 ))
-    done
-    PR_NO_COLOUR="%{$terminfo[sgr0]%}"
-
-    ###
-    # Modify Git prompt
-    ZSH_THEME_GIT_PROMPT_PREFIX=" on %{$fg[green]%}"
-    ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
-    ZSH_THEME_GIT_PROMPT_DIRTY=""
-    ZSH_THEME_GIT_PROMPT_CLEAN=""
-
-    ZSH_THEME_GIT_PROMPT_ADDED="%{$fg[green]%} ✚"
-    ZSH_THEME_GIT_PROMPT_MODIFIED="%{$fg[blue]%} ✹"
-    ZSH_THEME_GIT_PROMPT_DELETED="%{$fg[red]%} ✖"
-    ZSH_THEME_GIT_PROMPT_RENAMED="%{$fg[magenta]%} ➜"
-    ZSH_THEME_GIT_PROMPT_UNMERGED="%{$fg[yellow]%} ═"
-    ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg[cyan]%} ✭"
-
-    ###
-    # See if we can use extended characters to look nicer.
-    # UTF-8 Fixed
-
-    if [[ $(locale charmap) == "UTF-8" ]]; then
-	PR_SET_CHARSET=""
-	PR_SHIFT_IN=""
-	PR_SHIFT_OUT=""
-	PR_HBAR="─"
-        PR_ULCORNER="┌"
-        PR_LLCORNER="└"
-        PR_LRCORNER="┘"
-        PR_URCORNER="┐"
+    if [[ $years -gt 0 ]]; then
+      commit_age="${years}y$((days % 365 ))d"
+    elif [[ $days -gt 0 ]]; then
+      commit_age="${days}d$((hours % 24))h"
+    elif [[ $hours -gt 0 ]]; then
+      commit_age+="${hours}h$(( minutes % 60 ))m"
     else
-        typeset -A altchar
-        set -A altchar ${(s..)terminfo[acsc]}
-        # Some stuff to help us draw nice lines
-        PR_SET_CHARSET="%{$terminfo[enacs]%}"
-        PR_SHIFT_IN="%{$terminfo[smacs]%}"
-        PR_SHIFT_OUT="%{$terminfo[rmacs]%}"
-        PR_HBAR='$PR_SHIFT_IN${altchar[q]:--}$PR_SHIFT_OUT'
-        PR_ULCORNER='$PR_SHIFT_IN${altchar[l]:--}$PR_SHIFT_OUT'
-        PR_LLCORNER='$PR_SHIFT_IN${altchar[m]:--}$PR_SHIFT_OUT'
-        PR_LRCORNER='$PR_SHIFT_IN${altchar[j]:--}$PR_SHIFT_OUT'
-        PR_URCORNER='$PR_SHIFT_IN${altchar[k]:--}$PR_SHIFT_OUT'
-     fi
-
-
-    ###
-    # Decide if we need to set titlebar text.
-
-    case $TERM in
-	xterm*)
-	    PR_TITLEBAR=$'%{\e]0;%(!.-=*[ROOT]*=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\a%}'
-	    ;;
-	screen)
-	    PR_TITLEBAR=$'%{\e_screen \005 (\005t) | %(!.-=[ROOT]=- | .)%n@%m:%~ | ${COLUMNS}x${LINES} | %y\e\\%}'
-	    ;;
-	*)
-	    PR_TITLEBAR=''
-	    ;;
-    esac
-
-
-    ###
-    # Decide whether to set a screen title
-    if [[ "$TERM" == "screen" ]]; then
-	PR_STITLE=$'%{\ekzsh\e\\%}'
-    else
-	PR_STITLE=''
+      commit_age="${minutes}m"
     fi
 
-
-    ###
-    # Finally, the prompt.
-
-    PROMPT='$PR_SET_CHARSET$PR_STITLE${(e)PR_TITLEBAR}\
-$PR_RED$PR_ULCORNER$PR_HBAR$PR_GREY(\
-%$PR_PWDLEN<...<%~%<<\
-$PR_GREY)`rvm_prompt_info || rbenv_prompt_info`$PR_RED$PR_HBAR$PR_HBAR${(e)PR_FILLBAR}$PR_HBAR$PR_GREY(\
-$PR_RED%(!.%SROOT%s.%n)$PR_GREY@$PR_GREEN%m:%l\
-$PR_GREY)$PR_RED$PR_HBAR$PR_URCORNER\
-
-$PR_RED$PR_LLCORNER$PR_BLUE$PR_HBAR(\
-$PR_YELLOW%D{%H:%M:%S}\
-$PR_LIGHT_BLUE%{$reset_color%}`git_prompt_info``git_prompt_status`$PR_BLUE)$PR_RED$PR_HBAR\
-$PR_HBAR\
->$PR_NO_COLOUR '
-
-    # display exitcode on the right when >0
-    return_code="%(?..%{$fg[red]%}%? ↵ %{$reset_color%})"
-    RPROMPT=' $return_code$PR_CYAN$PR_HBAR$PR_BLUE$PR_HBAR\
-($PR_YELLOW%D{%a,%b%d}$PR_BLUE)$PR_HBAR$PR_CYAN$PR_LRCORNER$PR_NO_COLOUR'
-
-    PS2='$PR_CYAN$PR_HBAR\
-$PR_BLUE$PR_HBAR(\
-$PR_LIGHT_GREEN%_$PR_BLUE)$PR_HBAR\
-$PR_CYAN$PR_HBAR$PR_NO_COLOUR '
+    echo "${ZSH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL}${commit_age}%{$reset_color%}"
+  fi
 }
 
-setprompt
+MODE_INDICATOR="%{$fg_bold[yellow]%}❮%{$reset_color%}%{$fg[yellow]%}❮❮%{$reset_color%}"
 
-autoload -U add-zsh-hook
-add-zsh-hook precmd  theme_precmd
-add-zsh-hook preexec theme_preexec
+# Git prompt settings
+ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[green]%}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_DIRTY=" %{$fg[red]%}✗%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_CLEAN=" %{$fg[green]%}✔%{$reset_color%}"
+ZSH_THEME_GIT_PROMPT_ADDED="%{$fg[green]%}✚ "
+ZSH_THEME_GIT_PROMPT_MODIFIED="%{$fg[yellow]%}⚑ "
+ZSH_THEME_GIT_PROMPT_DELETED="%{$fg[red]%}✖ "
+ZSH_THEME_GIT_PROMPT_RENAMED="%{$fg[blue]%}▴ "
+ZSH_THEME_GIT_PROMPT_UNMERGED="%{$fg[cyan]%}§ "
+ZSH_THEME_GIT_PROMPT_UNTRACKED="%{$fg[white]%}◒ "
+
+# Ruby prompt settings
+ZSH_THEME_RUBY_PROMPT_PREFIX="%{$fg[grey]%}"
+ZSH_THEME_RUBY_PROMPT_SUFFIX="%{$reset_color%}"
+
+# Colors vary depending on time lapsed.
+ZSH_THEME_GIT_TIME_SINCE_COMMIT_SHORT="%{$fg[green]%}"
+ZSH_THEME_GIT_TIME_SHORT_COMMIT_MEDIUM="%{$fg[yellow]%}"
+ZSH_THEME_GIT_TIME_SINCE_COMMIT_LONG="%{$fg[red]%}"
+ZSH_THEME_GIT_TIME_SINCE_COMMIT_NEUTRAL="%{$fg[white]%}"
+
+# LS colors, made with https://geoff.greer.fm/lscolors/
+# export LSCOLORS="exfxcxdxbxegedabagacad"
+# export LS_COLORS='di=34;40:ln=35;40:so=32;40:pi=33;40:ex=31;40:bd=34;46:cd=34;43:su=0;41:sg=0;46:tw=0;42:ow=0;43:'
+export GREP_COLOR='1;33'
